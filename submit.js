@@ -40,7 +40,7 @@ const MODEL_SERIES = [
 // Mô tả dự án — CÀNG CHI TIẾT CÀNG TỐT
 // Cover: core problem, logic flow, multi-agent, impact, token volume
 const WORK_DESC = `VietLex — Vietnam Legal Intelligence Platform
-GitHub: https://github.com/clackken-vni/VietNam-Law
+GitHub: https://github.com/clackken-vni/VietNam-Law/tree/task/init-bcw5p
 
 1. CORE PROBLEM
 
@@ -108,7 +108,7 @@ Monorepo: Turborepo + pnpm workspaces
 - Seamless Claude Code plugin integration
 - Plan to scale MiMo from 20% to 50% of our inference volume`;
 
-const DEMO_URL = "https://github.com/clackken-vni/VietNam-Law";
+const DEMO_URL = "https://github.com/clackken-vni/VietNam-Law/tree/task/init-bcw5p";
 
 // ============================================================
 // HELPER
