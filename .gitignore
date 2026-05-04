@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.next/
+*.log
+.env
+.env.local
+.claude/settings.local.json
+.mcp.json
+.turbo/
+prisma/migrations/
+*.tsbuildinfo
+*.png
+submit.js
