@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Lĩnh vực pháp luật ──────────────────────────────
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?
+  parentId    String?
+
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+
+  documents LegalDocument[]
+}
+
+// ─── Cơ quan ban hành ────────────────────────────────
+
+model Authority {
+  id    String @id @default(cuid())
+  name  String
+  slug  String @unique
+  level String // TRUNG_UONG | BO_NGANH | DIA_PHUONG
+
+  documents LegalDocument[]
+}
+
+// ─── Văn bản pháp luật ──────────────────────────────
+
+model LegalDocument {
+  id             String   @id @default(cuid())
+  title          String
+  alias          String                                        // Tên gọi khác / tên tắt
+  number         String                                        // Số hiệu
+  type           String                                        // DocumentType enum
+  issuedDate     DateTime
+  effectiveDate  DateTime
+  expirationDate DateTime?
+  status         String   @default("EFFECTIVE")               // EffectivenessStatus
+  sourceUrl      String?
+  viewCount      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Foreign keys
+  categoryId  String
+  authorityId String
+
+  // Relations
+  category  Category  @relation(fields: [categoryId], references: [id])
+  authority Authority @relation(fields: [authorityId], references: [id])
+
+  articles             Article[]
+  outgoingReferences   DocumentReference[] @relation("OutgoingReference")
+  incomingReferences   DocumentReference[] @relation("IncomingReference")
+
+  @@index([type])
+  @@index([status])
+  @@index([issuedDate])
+  @@index([effectiveDate])
+  @@index([categoryId])
+  @@index([authorityId])
+}
+
+// ─── Điều khoản ───────────────────────────────────────
+
+model Article {
+  id            String  @id @default(cuid())
+  documentId    String
+  chapterTitle  String? // Tên chương (VD: "Chương I: Những quy định chung")
+  sectionTitle  String? // Tên mục
+  articleNumber Int
+  title         String? // Tiêu đề điều
+  content       String  // Nội dung toàn văn của điều
+  sortOrder     Int
+
+  document LegalDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  clauses Clause[]
+
+  outgoingReferences DocumentReference[] @relation("OutgoingArticle")
+  incomingReferences DocumentReference[] @relation("IncomingArticle")
+
+  @@unique([documentId, articleNumber])
+  @@index([documentId, sortOrder])
+}
+
+// ─── Khoản ────────────────────────────────────────────
+
+model Clause {
+  id           String @id @default(cuid())
+  articleId    String
+  clauseNumber Int
+  content      String
+  sortOrder    Int
+
+  article Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  points  Point[]
+
+  @@unique([articleId, clauseNumber])
+}
+
+// ─── Điểm ─────────────────────────────────────────────
+
+model Point {
+  id          String @id @default(cuid())
+  clauseId    String
+  pointLetter String // a, b, c...
+  content     String
+  sortOrder   Int
+
+  clause Clause @relation(fields: [clauseId], references: [id], onDelete: Cascade)
+
+  @@unique([clauseId, pointLetter])
+}
+
+// ─── Liên kết văn bản ──────────────────────────────────
+
+model DocumentReference {
+  id               String @id @default(cuid())
+  sourceDocumentId String
+  targetDocumentId String
+  referenceType    String // CITES | REPLACES | AMENDS | GUIDES | BASED_ON
+  detail           String?
+  sourceArticleId  String?
+  targetArticleId  String?
+
+  sourceDocument LegalDocument @relation("OutgoingReference", fields: [sourceDocumentId], references: [id], onDelete: Cascade)
+  targetDocument LegalDocument @relation("IncomingReference", fields: [targetDocumentId], references: [id], onDelete: Cascade)
+  sourceArticle  Article?       @relation("OutgoingArticle", fields: [sourceArticleId], references: [id])
+  targetArticle  Article?       @relation("IncomingArticle", fields: [targetArticleId], references: [id])
+
+  @@index([sourceDocumentId])
+  @@index([targetDocumentId])
+  @@index([referenceType])
+}
