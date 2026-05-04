@@ -10,3 +10,4 @@ dist/
 prisma/migrations/
 *.tsbuildinfo
 *.png
+submit.js

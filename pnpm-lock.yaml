@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      playwright:
-        specifier: ^1.52.0
-        version: 1.59.1
     devDependencies:
       turbo:
         specifier: ^2.0.0

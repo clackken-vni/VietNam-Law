@@ -11,11 +11,7 @@
     "db:migrate": "turbo db:migrate",
     "db:seed": "turbo db:seed",
     "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down",
-    "apply": "node submit.js"
-  },
-  "dependencies": {
-    "playwright": "^1.52.0"
+    "docker:down": "docker compose down"
   },
   "devDependencies": {
     "turbo": "^2.0.0",
